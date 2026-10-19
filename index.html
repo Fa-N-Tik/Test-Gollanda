@@ -1,0 +1,704 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Тест Голланда (RIASEC) — профориентация для студентов</title>
+<style>
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    background: #383838; color: #f5f5f5; line-height: 1.55; -webkit-font-smoothing: antialiased;
+  }
+  .page { max-width: 880px; margin: 0 auto; padding: 24px 16px 70px; }
+
+  .hero {
+    background: linear-gradient(135deg, #0f766e, #14b8a6); color: #fff;
+    border-radius: 18px; padding: 28px 26px;
+    box-shadow: 0 12px 32px rgba(0, 0, 0, .35); margin-bottom: 22px;
+  }
+  .hero h1 { margin: 0 0 6px; font-size: 24px; line-height: 1.25; }
+  .hero p { margin: 0; opacity: .95; font-size: 15px; }
+  .hero .chip {
+    display: inline-block; background: rgba(255,255,255,.2);
+    border: 1px solid rgba(255,255,255,.35); padding: 3px 10px;
+    border-radius: 999px; font-size: 13px; margin-top: 12px; margin-right: 6px;
+  }
+
+  .card {
+    background: #424242; border-radius: 16px; padding: 24px;
+    box-shadow: 0 4px 18px rgba(0, 0, 0, .25); margin-bottom: 20px;
+    color: #f5f5f5;
+  }
+  .card h2 { margin: 0 0 6px; font-size: 20px; color: #ffffff; }
+  .card .lead-text { margin: 0 0 18px; color: #c0c0c0; font-size: 15px; }
+
+  .field { margin-bottom: 16px; }
+  .field label { display: block; font-weight: 600; font-size: 14px; margin-bottom: 6px; color: #f5f5f5; }
+  .req { color: #ff6b6b; }
+  .field input {
+    width: 100%; padding: 12px 14px; border: 1.5px solid #565656;
+    border-radius: 10px; font-size: 15px; font-family: inherit;
+    background: #4a4a4a; color: #ffffff;
+    transition: border-color .15s, box-shadow .15s, background .15s;
+  }
+  .field input::placeholder { color: #a0a0a0; }
+  .field input:focus {
+    outline: none; border-color: #14b8a6; background: #505050;
+    box-shadow: 0 0 0 4px rgba(20, 184, 166, .20);
+  }
+  .row { display: flex; gap: 16px; flex-wrap: wrap; }
+  .row .field { flex: 1 1 200px; }
+
+  .btn {
+    display: inline-block; border: none; cursor: pointer; font-family: inherit;
+    font-size: 16px; font-weight: 600; padding: 14px 26px; border-radius: 12px;
+    background: linear-gradient(135deg, #0f766e, #14b8a6); color: #fff;
+    box-shadow: 0 6px 18px rgba(0, 0, 0, .3);
+    transition: transform .12s, box-shadow .12s, opacity .12s;
+  }
+  .btn:hover:not(:disabled) { transform: translateY(-1px); box-shadow: 0 9px 22px rgba(0,0,0,.4); }
+  .btn:active:not(:disabled) { transform: translateY(0); }
+  .btn:disabled { background: #565656; color: #a0a0a0; box-shadow: none; cursor: not-allowed; opacity: .85; }
+  .btn.secondary {
+    background: transparent; color: #14b8a6; border: 1.5px solid #14b8a6; box-shadow: none;
+  }
+  .btn.secondary:hover { background: rgba(20, 184, 166, .12); transform: none; }
+
+  .btn-row { display: flex; gap: 12px; flex-wrap: wrap; margin-top: 22px; }
+
+  .progress-wrap {
+    position: sticky; top: 0; z-index: 20; background: #424242;
+    border-radius: 14px; padding: 14px 18px;
+    box-shadow: 0 4px 18px rgba(0, 0, 0, .3); margin-bottom: 18px;
+  }
+  .progress-top {
+    display: flex; justify-content: space-between; align-items: center;
+    font-size: 13.5px; font-weight: 600; color: #d0d0d0; margin-bottom: 8px;
+  }
+  .progress-track { height: 9px; background: #4a4a4a; border-radius: 999px; overflow: hidden; }
+  .progress-bar {
+    height: 100%; width: 0; border-radius: 999px;
+    background: linear-gradient(90deg, #0f766e, #14b8a6);
+    transition: width .25s ease;
+  }
+
+  .q {
+    background: #424242; border-radius: 14px; padding: 18px 20px; margin-bottom: 14px;
+    box-shadow: 0 3px 14px rgba(0,0,0,.22); border-left: 4px solid #565656;
+    transition: border-color .2s;
+    color: #f5f5f5;
+  }
+  .q.answered { border-left-color: #14b8a6; }
+  .q-head { display: flex; align-items: center; gap: 10px; margin-bottom: 12px; }
+  .q-num {
+    flex: none; width: 28px; height: 28px; border-radius: 8px;
+    background: #4a4a4a; color: #14b8a6; font-weight: 700; font-size: 14px;
+    display: flex; align-items: center; justify-content: center;
+    border: 1px solid #565656;
+  }
+  .q-hint { font-size: 13px; color: #a8a8a8; }
+
+  .opt {
+    display: flex; align-items: flex-start; gap: 11px;
+    padding: 11px 13px; border-radius: 10px; border: 1.5px solid #565656;
+    cursor: pointer; margin-bottom: 8px; transition: background .15s, border-color .15s;
+    font-size: 15px; background: #4a4a4a; color: #f5f5f5;
+  }
+  .opt:last-child { margin-bottom: 0; }
+  .opt:hover { background: #525252; border-color: #6a6a6a; }
+  .opt input { margin: 3px 0 0; accent-color: #14b8a6; width: 17px; height: 17px; flex: none; cursor: pointer; }
+  .opt.selected { background: rgba(20, 184, 166, .15); border-color: #14b8a6; }
+  .opt.selected .opt-text { font-weight: 600; color: #5eead4; }
+  .opt-text { color: #f5f5f5; }
+
+  .student-info {
+    background: rgba(20, 184, 166, .10); border: 1px solid rgba(20, 184, 166, .35); border-radius: 12px;
+    padding: 14px 18px; font-size: 14.5px; margin-bottom: 22px; color: #f5f5f5;
+  }
+  .student-info div { margin-bottom: 4px; }
+  .student-info div:last-child { margin-bottom: 0; }
+  .student-info b { color: #5eead4; }
+
+  .lead-box {
+    border-radius: 14px; padding: 20px 22px;
+    background: #4a4a4a;
+    border: 1.5px solid #565656; margin-bottom: 24px;
+    color: #f5f5f5;
+  }
+  .lead-badge {
+    display: inline-block; background: #0f766e; color: #fff;
+    font-size: 12px; font-weight: 700; letter-spacing: .4px;
+    text-transform: uppercase; padding: 4px 11px; border-radius: 999px; margin-bottom: 12px;
+  }
+  .lead-box h3 { margin: 0 0 10px; font-size: 21px; color: #ffffff; }
+  .lead-box p { margin: 0 0 12px; color: #d0d0d0; }
+  .lead-box h4 { margin: 0 0 10px; font-size: 15px; color: #e0e0e0; }
+
+  .tags { display: flex; flex-wrap: wrap; gap: 8px; }
+  .tag {
+    background: #383838; border: 1px solid #6a6a6a; color: #f5f5f5;
+    padding: 5px 12px; border-radius: 999px; font-size: 13.5px;
+  }
+
+  .bars { margin-top: 6px; }
+  .bar-row { margin-bottom: 14px; }
+  .bar-label {
+    display: flex; justify-content: space-between;
+    font-size: 14px; font-weight: 600; margin-bottom: 5px; color: #f5f5f5;
+  }
+  .bar-label .score { color: #b0b0b0; font-weight: 600; }
+  .bar-track { height: 12px; background: #4a4a4a; border-radius: 999px; overflow: hidden; }
+  .bar-fill { height: 100%; border-radius: 999px; width: 0; transition: width .8s cubic-bezier(.2,.8,.3,1); }
+
+  .note {
+    background: rgba(251, 191, 36, .10); border-left: 4px solid #fbbf24; border-radius: 10px;
+    padding: 14px 18px; font-size: 14.5px; color: #f5f5f5; margin-top: 22px;
+  }
+  .note b { color: #fcd34d; }
+
+  .save-status { margin-top: 14px; font-size: 14px; }
+  .save-status .badge {
+    display: inline-flex; align-items: center; gap: 7px;
+    padding: 6px 13px; border-radius: 999px; font-weight: 600;
+    border: 1px solid transparent;
+  }
+  .badge.sending { background: rgba(99, 102, 241, .15); color: #a5b4fc; border-color: rgba(99, 102, 241, .4); }
+  .badge.ok      { background: rgba(16, 185, 129, .15); color: #6ee7b7; border-color: rgba(16, 185, 129, .4); }
+  .badge.warn    { background: rgba(251, 191, 36, .15); color: #fcd34d; border-color: rgba(251, 191, 36, .4); }
+  .badge.error   { background: rgba(239, 68, 68, .15); color: #fca5a5; border-color: rgba(239, 68, 68, .4); }
+
+  .spinner {
+    width: 14px; height: 14px; border-radius: 50%;
+    border: 2px solid rgba(165, 180, 252, .3);
+    border-top-color: #a5b4fc;
+    animation: spin .8s linear infinite;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  .hidden { display: none !important; }
+
+  @media print {
+    body { background: #fff; color: #111; }
+    .no-print { display: none !important; }
+    .page { max-width: 100%; padding: 0; }
+    .card, .hero, .q, .opt, .student-info, .lead-box, .progress-wrap, .tag { box-shadow: none; }
+    .card, .q, .opt, .student-info, .lead-box, .progress-wrap, .tag {
+      background: #fff !important; color: #111 !important; border-color: #ccc !important;
+    }
+    .card h2, .card h3, .card h4, .lead-box h3, .lead-box h4, .opt-text, .bar-label, .q-num, .student-info b { color: #111 !important; }
+    .lead-text, .lead-box p, .bar-label .score, .q-hint, .progress-top { color: #444 !important; }
+    .hero { background: #0f766e !important; color: #fff !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+    .bar-fill { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  }
+
+  @media (max-width: 560px) {
+    .hero h1 { font-size: 20px; }
+    .card { padding: 18px; }
+    .q { padding: 15px; }
+  }
+</style>
+</head>
+<body>
+<div class="page">
+
+  <header class="hero">
+    <h1>Тест Голланда (RIASEC)</h1>
+    <p>Профориентационный опросник для студентов. Определите свой профессиональный тип личности и подходящие направления карьеры.</p>
+    <span class="chip">42 пары профессий</span>
+    <span class="chip">⏱ 15–20 минут</span>
+    <span class="chip">Студенты вузов и колледжей</span>
+  </header>
+
+  <section id="screen-form">
+    <div class="card">
+      <h2>Данные участника</h2>
+      <p class="lead-text">
+        Перед началом теста заполните, пожалуйста, все поля. Результат будет отправлен
+        в защищённую базу учебного заведения — вы увидите его сразу после теста.
+      </p>
+
+      <form id="startForm" novalidate>
+        <div class="field">
+          <label for="institution">Учебное заведение <span class="req">*</span></label>
+          <input id="institution" type="text" placeholder="Например: НИУ ВШЭ, МГУ, СПбГУ, колледж № 15" required>
+        </div>
+
+        <div class="row">
+          <div class="field">
+            <label for="course">Курс / группа <span class="req">*</span></label>
+            <input id="course" type="text" placeholder="Например: 2 курс, группа БИ-21" required>
+          </div>
+          <div class="field" style="flex: 2 1 280px;">
+            <label for="fio">ФИО <span class="req">*</span></label>
+            <input id="fio" type="text" placeholder="Иванов Иван Иванович" required>
+          </div>
+        </div>
+
+        <div class="field">
+          <label for="major">Направление подготовки / специальность <span class="req">*</span></label>
+          <input id="major" type="text" placeholder="Например: Прикладная информатика, Экономика, Дизайн" required>
+        </div>
+
+        <div class="btn-row">
+          <button type="submit" class="btn">Начать тестирование →</button>
+        </div>
+      </form>
+    </div>
+
+    <div class="card">
+      <h2>Как отвечать</h2>
+      <p class="lead-text" style="margin-bottom: 12px;">
+        В каждой из 42 пар выберите <b>одну</b> профессию, которой вы отдаёте предпочтение.
+        Долго не задумывайтесь — правильных и неправильных ответов нет.
+      </p>
+      <p class="lead-text" style="margin: 0;">
+        Представьте себя в этой деятельности. Если сомневаетесь — выбирайте то, что ближе к интересам.
+      </p>
+    </div>
+  </section>
+
+  <section id="screen-test" class="hidden">
+    <div class="progress-wrap">
+      <div class="progress-top">
+        <span id="progressText">Отвечено 0 из 42</span>
+        <span id="studentShort"></span>
+      </div>
+      <div class="progress-track"><div class="progress-bar" id="progressBar"></div></div>
+    </div>
+
+    <form id="testForm">
+      <div id="questions"></div>
+      <div class="btn-row no-print">
+        <button type="submit" class="btn" id="finishBtn" disabled>Показать результат</button>
+        <button type="button" class="btn secondary" id="backBtn">← Вернуться к анкете</button>
+      </div>
+    </form>
+  </section>
+
+  <section id="screen-result" class="hidden">
+    <div class="card">
+      <h2>Результат тестирования</h2>
+      <p class="lead-text">Тест Голланда (RIASEC)</p>
+
+      <div class="student-info" id="studentInfo"></div>
+      <div id="saveStatus"></div>
+      <div id="leadContainer" style="margin-top:18px;"></div>
+
+      <h3 style="margin: 0 0 14px; font-size: 17px;">Распределение баллов по типам личности</h3>
+      <div class="bars" id="bars"></div>
+
+      <div class="note" id="noteBox"></div>
+
+      <div class="btn-row no-print">
+        <button type="button" class="btn secondary" id="printBtn">🖨 Распечатать результат</button>
+        <button type="button" class="btn" id="restartBtn">Пройти заново</button>
+      </div>
+    </div>
+  </section>
+
+</div>
+
+<script>
+/* =====================================================================
+   ⚙️ НАСТРОЙКИ
+   ===================================================================== */
+const SUBMIT_URL = 'https://script.google.com/macros/s/AKfycbzdMpzkrgnX7n-H6_9RFen9xLoWRXbSpwarZx5e8k9UFkgUbGlEj-WM_a6tBxUvUHezMw/exec';
+
+const SHOW_RESULT_TO_STUDENT = true;
+
+/* =====================================================================
+   ТИПЫ RIASEC (из методики, шкалы I–VI)
+   ===================================================================== */
+
+const TYPES = {
+  'Р': { name: 'Реалистический', short: 'Реалист', color: '#2dd4bf',
+    description: 'Предпочитает работать с вещами, а не с людьми. Несоциальный, эмоционально стабильный тип. Ориентирован на настоящее, конкретное. Хорошо приспосабливается к обстановке, пластичен, трудолюбив. Охотнее делает, чем говорит; настойчив, уверен в себе; в работе предпочитает чёткие и конкретные указания.',
+    professions: ['Оператор ПК', 'Техник', 'Шофёр', 'Ювелир', 'Автомеханик', 'Фермер', 'Инженер', 'Спасатель', 'Электрорадиотехник', 'Оператор станков с ЧПУ'] },
+  'И': { name: 'Интеллектуальный (исследовательский)', short: 'Интеллектуал', color: '#60a5fa',
+    description: 'Ориентирован на труд с идеями и объектами. Любознательный, методичный, любит работать в одиночку. Целеустремлён, настойчив, терпелив. Отличается аналитическими способностями, рационализмом, независимостью и оригинальностью мышления. Часто выбирает научную и исследовательскую работу.',
+    professions: ['Метеоролог', 'Научный работник', 'Физик', 'Химик', 'Хирург', 'Биолог', 'Политолог', 'Философ', 'Лингвист', 'Микробиолог', 'Программист', 'Археолог', 'Эколог'] },
+  'С': { name: 'Социальный', short: 'Социум', color: '#fb923c',
+    description: 'Ориентирован на общение и взаимодействие с другими людьми. Нуждается в контактах, не терпит уединения. Ответственен, терпелив, эмпатичен. Развитые вербальные способности, пластичен к меняющейся обстановке. Гуманен, чувствителен, активен, ориентирован на социальные нормы.',
+    professions: ['Учитель', 'Преподаватель', 'Психолог', 'Логопед', 'Священнослужитель', 'Врач', 'Продавец', 'Тренер', 'Социальный педагог', 'Воспитатель', 'Адвокат'] },
+  'К': { name: 'Конвенциальный', short: 'Конвенционал', color: '#facc15',
+    description: 'Предпочитает чётко структурированную деятельность. Выбирает цели и задачи, подтверждаемые обществом и обычаями. Практичен, стереотипен, не оригинален. Консервативен, ригиден, но обладает хорошими навыками общения. Настойчив, дисциплинирован, добросовестен — прекрасный исполнитель.',
+    professions: ['Экономист', 'Кассир в банке', 'Налоговый инспектор', 'Ревизор', 'Оператор ЭВМ', 'Судебный исполнитель', 'Архивариус', 'Бухгалтер', 'Нотариус', 'Библиотекарь'] },
+  'П': { name: 'Предприимчивый', short: 'Предприниматель', color: '#a78bfa',
+    description: 'Выбирает цели и задачи, позволяющие проявить энергию и энтузиазм. Сочетает импульсивность и холодный расчёт. Обладает интуицией и навыками эффективного межличностного взаимодействия. Самоуверен, настойчив в достижении цели, лабилен. Избегает занятий, требующих усидчивости и длительной концентрации внимания.',
+    professions: ['Руководитель', 'Директор', 'Судья', 'Адвокат', 'Брокер', 'Предприниматель', 'Риэлтор', 'Менеджер', 'Продюсер', 'Биржевой маклер'] },
+  'А': { name: 'Артистический', short: 'Артист', color: '#f472b6',
+    description: 'Сложный взгляд на жизнь, гибкость и независимость в принятии решений. Очень чувствителен, не социален, оригинален. Богатое воображение, склонность к творческой деятельности. Обладает хорошей интуицией, независим, эмоционален. Не выносит жёсткой регламентации, предпочитает свободный график работы.',
+    professions: ['Писатель', 'Фотограф', 'Музыкант', 'Художник', 'Певец', 'Журналист', 'Архитектор', 'Актёр', 'Дизайнер', 'Модельер', 'Режиссёр', 'Композитор'] }
+};
+
+/* 42 пары профессий — с типами по вашей таблице подсчёта (I–VI) */
+const QUESTIONS = [
+  { a: { text: 'Инженер-технолог', type: 'Р' },                       b: { text: 'Инженер-конструктор', type: 'И' } },
+  { a: { text: 'Электрорадиотехник', type: 'Р' },                     b: { text: 'Врач-терапевт', type: 'С' } },
+  { a: { text: 'Оператор станков с числовым программным управлением', type: 'Р' }, b: { text: 'Кодировщик (обработка информации)', type: 'К' } },
+  { a: { text: 'Фотограф', type: 'Р' },                                b: { text: 'Коммерсант', type: 'П' } },
+  { a: { text: 'Спасатель МЧС', type: 'Р' },                           b: { text: 'Дизайнер', type: 'А' } },
+  { a: { text: 'Политолог', type: 'И' },                               b: { text: 'Психиатр', type: 'С' } },
+  { a: { text: 'Учёный-химик', type: 'И' },                            b: { text: 'Бухгалтер', type: 'К' } },
+  { a: { text: 'Философ', type: 'И' },                                 b: { text: 'Частный предприниматель', type: 'П' } },
+  { a: { text: 'Лингвист', type: 'И' },                                b: { text: 'Модельер', type: 'А' } },
+  { a: { text: 'Инспектор службы занятости населения', type: 'С' },    b: { text: 'Статист', type: 'К' } },
+  { a: { text: 'Социальный педагог', type: 'С' },                      b: { text: 'Биржевой маклер', type: 'П' } },
+  { a: { text: 'Тренер', type: 'С' },                                  b: { text: 'Искусствовед', type: 'А' } },
+  { a: { text: 'Нотариус', type: 'К' },                                b: { text: 'Менеджер', type: 'П' } },
+  { a: { text: 'Перфораторщик', type: 'К' },                           b: { text: 'Художник', type: 'А' } },
+  { a: { text: 'Лидер политической партии, общественного движения', type: 'П' }, b: { text: 'Писатель', type: 'А' } },
+  { a: { text: 'Закройщик', type: 'Р' },                               b: { text: 'Метеоролог', type: 'И' } },
+  { a: { text: 'Водитель', type: 'Р' },                                b: { text: 'Работник пресс-службы', type: 'С' } },
+  { a: { text: 'Чертёжник', type: 'К' },                               b: { text: 'Риэлтор', type: 'П' } },
+  { a: { text: 'Специалист по ремонту компьютеров и оргтехники', type: 'Р' }, b: { text: 'Секретарь-референт', type: 'К' } },
+  { a: { text: 'Микробиолог', type: 'И' },                             b: { text: 'Психолог', type: 'С' } },
+  { a: { text: 'Видеооператор', type: 'Р' },                           b: { text: 'Режиссёр', type: 'А' } },
+  { a: { text: 'Экономист', type: 'И' },                               b: { text: 'Провизор', type: 'К' } },
+  { a: { text: 'Зоолог', type: 'И' },                                  b: { text: 'Главный инженер', type: 'П' } },
+  { a: { text: 'Программист', type: 'И' },                             b: { text: 'Архитектор', type: 'А' } },
+  { a: { text: 'Работник инспекции по делам несовершеннолетних', type: 'С' }, b: { text: 'Коммивояжёр (сетевой маркетинг)', type: 'П' } },
+  { a: { text: 'Преподаватель', type: 'С' },                           b: { text: 'Биржевой маклер', type: 'П' } },
+  { a: { text: 'Воспитатель', type: 'С' },                             b: { text: 'Декоратор', type: 'А' } },
+  { a: { text: 'Реставратор', type: 'Р' },                             b: { text: 'Заведующий отделом предприятия', type: 'П' } },
+  { a: { text: 'Корректор', type: 'К' },                               b: { text: 'Литератор и кинокритик', type: 'А' } },
+  { a: { text: 'Фермер', type: 'П' },                                  b: { text: 'Визажист', type: 'А' } },
+  { a: { text: 'Парикмахер', type: 'Р' },                              b: { text: 'Социолог', type: 'И' } },
+  { a: { text: 'Экспедитор', type: 'Р' },                              b: { text: 'Редактор', type: 'К' } },
+  { a: { text: 'Ветеринар', type: 'Р' },                               b: { text: 'Директор (финансовый)', type: 'П' } },
+  { a: { text: 'Автомеханик', type: 'Р' },                             b: { text: 'Стилист', type: 'А' } },
+  { a: { text: 'Археолог', type: 'И' },                                b: { text: 'Эксперт', type: 'К' } },
+  { a: { text: 'Библиограф', type: 'И' },                              b: { text: 'Корреспондент', type: 'С' } },
+  { a: { text: 'Эколог', type: 'И' },                                  b: { text: 'Актёр', type: 'А' } },
+  { a: { text: 'Логопед', type: 'С' },                                 b: { text: 'Контролёр', type: 'К' } },
+  { a: { text: 'Адвокат', type: 'С' },                                 b: { text: 'Директор (глава АО)', type: 'П' } },
+  { a: { text: 'Кассир', type: 'К' },                                  b: { text: 'Продюсер', type: 'П' } },
+  { a: { text: 'Поэт, писатель', type: 'А' },                          b: { text: 'Продавец', type: 'С' } },
+  { a: { text: 'Криминалист (баллистик)', type: 'К' },                 b: { text: 'Композитор', type: 'А' } }
+];
+
+const TOTAL = QUESTIONS.length;              // 42
+const MAX_SCORE = { 'Р': 14, 'И': 14, 'С': 14, 'К': 14, 'П': 14, 'А': 14 };
+const TYPE_ORDER = ['Р', 'И', 'С', 'К', 'П', 'А'];
+const TYPE_LETTERS = { 'Р': 'R', 'И': 'I', 'С': 'S', 'К': 'C', 'П': 'E', 'А': 'A' };
+
+/* =====================================================================
+   ЭЛЕМЕНТЫ
+   ===================================================================== */
+const screenForm   = document.getElementById('screen-form');
+const screenTest   = document.getElementById('screen-test');
+const screenResult = document.getElementById('screen-result');
+
+const startForm    = document.getElementById('startForm');
+const testForm     = document.getElementById('testForm');
+const questionsBox = document.getElementById('questions');
+
+const progressBar  = document.getElementById('progressBar');
+const progressText = document.getElementById('progressText');
+const studentShort = document.getElementById('studentShort');
+const finishBtn    = document.getElementById('finishBtn');
+
+const studentInfo  = document.getElementById('studentInfo');
+const saveStatus   = document.getElementById('saveStatus');
+const leadBox      = document.getElementById('leadContainer');
+const barsBox      = document.getElementById('bars');
+const noteBox      = document.getElementById('noteBox');
+
+let userData = { institution: '', course: '', fio: '', major: '' };
+
+/* =====================================================================
+   ПОСТРОЕНИЕ ТЕСТА
+   ===================================================================== */
+
+function makeOption(n, value, text) {
+  const label = document.createElement('label');
+  label.className = 'opt';
+
+  const input = document.createElement('input');
+  input.type = 'radio';
+  input.name = 'q' + n;
+  input.value = value;
+
+  const span = document.createElement('span');
+  span.className = 'opt-text';
+  span.textContent = (value === 'a' ? 'А) ' : 'В) ') + text;
+
+  label.append(input, span);
+  return label;
+}
+
+function buildQuestions() {
+  questionsBox.innerHTML = '';
+  QUESTIONS.forEach((q, i) => {
+    const n = i + 1;
+    const div = document.createElement('div');
+    div.className = 'q';
+    div.dataset.q = n;
+
+    const head = document.createElement('div');
+    head.className = 'q-head';
+    head.innerHTML = `<span class="q-num">${n}</span><span class="q-hint">Какую профессию вы предпочтёте?</span>`;
+
+    div.append(head,
+      makeOption(n, 'a', q.a.text),
+      makeOption(n, 'b', q.b.text));
+    questionsBox.appendChild(div);
+  });
+}
+
+questionsBox.addEventListener('change', () => {
+  questionsBox.querySelectorAll('.opt').forEach(opt => {
+    const input = opt.querySelector('input');
+    opt.classList.toggle('selected', input.checked);
+  });
+  updateProgress();
+});
+
+function updateProgress() {
+  let done = 0;
+  for (let i = 1; i <= TOTAL; i++) {
+    const checked = document.querySelector(`input[name="q${i}"]:checked`);
+    const card = questionsBox.querySelector(`.q[data-q="${i}"]`);
+    if (checked) { done++; card.classList.add('answered'); }
+    else { card.classList.remove('answered'); }
+  }
+  progressBar.style.width = (done / TOTAL * 100) + '%';
+  progressText.textContent = `Отвечено ${done} из ${TOTAL}`;
+  finishBtn.disabled = done < TOTAL;
+}
+
+function showScreen(el) {
+  [screenForm, screenTest, screenResult].forEach(s => s.classList.add('hidden'));
+  el.classList.remove('hidden');
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+startForm.addEventListener('submit', (e) => {
+  e.preventDefault();
+  const institution = document.getElementById('institution').value.trim();
+  const course      = document.getElementById('course').value.trim();
+  const fio         = document.getElementById('fio').value.trim();
+  const major       = document.getElementById('major').value.trim();
+
+  if (!institution || !course || !fio || !major) {
+    alert('Пожалуйста, заполните все поля анкеты.');
+    return;
+  }
+  userData = { institution, course, fio, major };
+  studentShort.textContent = `${fio} · ${course}`;
+  showScreen(screenTest);
+  updateProgress();
+});
+
+document.getElementById('backBtn').addEventListener('click', () => {
+  if (confirm('Вернуться к анкете? Введённые ответы сохранятся.')) showScreen(screenForm);
+});
+
+/* =====================================================================
+   ОБРАБОТКА РЕЗУЛЬТАТОВ
+   ===================================================================== */
+
+testForm.addEventListener('submit', async (e) => {
+  e.preventDefault();
+
+  const scores = { 'Р': 0, 'И': 0, 'С': 0, 'К': 0, 'П': 0, 'А': 0 };
+  for (let i = 1; i <= TOTAL; i++) {
+    const checked = document.querySelector(`input[name="q${i}"]:checked`);
+    if (!checked) { alert(`Вы не ответили на вопрос № ${i}.`); return; }
+    const q = QUESTIONS[i - 1];
+    const chosen = checked.value === 'a' ? q.a : q.b;
+    scores[chosen.type]++;
+  }
+
+  const record = buildRecord(scores);
+
+  if (SHOW_RESULT_TO_STUDENT) {
+    renderResult(record);
+  } else {
+    studentInfo.innerHTML = `
+      <div><b>ФИО:</b> ${escapeHtml(record.fio)}</div>
+      <div><b>Учебное заведение:</b> ${escapeHtml(record.institution)}</div>
+      <div><b>Курс:</b> ${escapeHtml(record.course)}</div>
+    `;
+    leadBox.innerHTML = '';
+    barsBox.innerHTML = '';
+    noteBox.innerHTML = '';
+  }
+
+  showScreen(screenResult);
+  await submitRecord(record);
+});
+
+function buildRecord(scores) {
+  const sorted = TYPE_ORDER
+    .map(k => ({ key: k, score: scores[k] }))
+    .sort((a, b) => b.score - a.score);
+  const best = sorted[0].score;
+  const leaders = sorted.filter(t => t.score === best).map(t => t.key);
+  const top3 = sorted.slice(0, 3).map(t => t.key);
+
+  return {
+    date: new Date().toISOString(),
+    fio: userData.fio,
+    institution: userData.institution,
+    course: userData.course,
+    major: userData.major,
+    scores: scores,
+    leaders: leaders,
+    top3: top3,
+    topScore: best,
+    leadersText: leaders.map(k => `${TYPES[k].name} (${k})`).join('; '),
+    top3Text: top3.map(k => `${TYPES[k].name} (${k})`).join(' → '),
+    riasecCode: top3.map(k => TYPE_LETTERS[k]).join(''),
+    scoresText: TYPE_ORDER.map(k => `${k}:${scores[k]}`).join(', ')
+  };
+}
+
+async function submitRecord(record) {
+  if (!SUBMIT_URL || SUBMIT_URL.includes('ВАШ_ID')) {
+    setStatus('warn', '⚠️ Отправка в базу не настроена. Сообщите администратору.');
+    return;
+  }
+  setStatus('sending', '<span class="spinner"></span> Отправляем результат…');
+  try {
+    await fetch(SUBMIT_URL, {
+      method: 'POST',
+      mode: 'no-cors',
+      headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+      body: JSON.stringify(record)
+    });
+    setStatus('ok', '✓ Результат отправлен в базу учебного заведения');
+  } catch (err) {
+    console.error('Ошибка отправки:', err);
+    setStatus('error', '✗ Не удалось отправить. Проверьте интернет.');
+  }
+}
+
+function setStatus(kind, html) {
+  saveStatus.innerHTML = `<div class="save-status"><span class="badge ${kind}">${html}</span></div>`;
+}
+
+function renderResult(record) {
+  const { scores, leaders, top3, riasecCode } = record;
+  const today = new Date(record.date).toLocaleDateString('ru-RU', {
+    day: 'numeric', month: 'long', year: 'numeric', hour: '2-digit', minute: '2-digit'
+  });
+
+  studentInfo.innerHTML = `
+    <div><b>ФИО:</b> ${escapeHtml(record.fio)}</div>
+    <div><b>Учебное заведение:</b> ${escapeHtml(record.institution)}</div>
+    <div><b>Курс / группа:</b> ${escapeHtml(record.course)}</div>
+    <div><b>Направление подготовки:</b> ${escapeHtml(record.major)}</div>
+    <div><b>Дата прохождения:</b> ${today}</div>
+  `;
+
+  const leadData = TYPE_ORDER
+    .map(k => ({ key: k, score: scores[k], ...TYPES[k] }))
+    .filter(t => leaders.includes(t.key));
+
+  leadBox.innerHTML = '';
+
+  const codeBox = document.createElement('div');
+  codeBox.style.cssText = 'text-align:center;margin-bottom:20px;padding:16px;background:#383838;border-radius:12px;border:1px solid rgba(20,184,166,.35);';
+  codeBox.innerHTML = `
+    <div style="font-size:13px;color:#b0b0b0;margin-bottom:4px;">Ваш код RIASEC</div>
+    <div style="font-size:32px;font-weight:800;letter-spacing:6px;color:#5eead4;">${riasecCode}</div>
+    <div style="font-size:13px;color:#b0b0b0;margin-top:4px;">${top3.map(k => TYPES[k].name).join(' → ')}</div>
+  `;
+  leadBox.appendChild(codeBox);
+
+  leadData.forEach(leader => {
+    const box = document.createElement('div');
+    box.className = 'lead-box';
+    box.style.borderColor = leader.color + '88';
+
+    const badge = document.createElement('span');
+    badge.className = 'lead-badge';
+    badge.style.background = leader.color;
+    badge.style.color = '#1a1a1a';
+    badge.textContent = leadData.length > 1 ? 'Ведущий тип (равный балл)' : 'Ведущий тип';
+
+    const h3 = document.createElement('h3');
+    h3.textContent = `${leader.name} (${leader.key})`;
+
+    const p = document.createElement('p');
+    p.textContent = leader.description;
+
+    const h4 = document.createElement('h4');
+    h4.textContent = 'Рекомендуемые профессии:';
+
+    const tags = document.createElement('div');
+    tags.className = 'tags';
+    leader.professions.forEach(pr => {
+      const t = document.createElement('span');
+      t.className = 'tag';
+      t.textContent = pr;
+      tags.appendChild(t);
+    });
+
+    box.append(badge, h3, p, h4, tags);
+    leadBox.appendChild(box);
+  });
+
+  barsBox.innerHTML = '';
+  TYPE_ORDER.forEach(key => {
+    const type = TYPES[key];
+    const score = scores[key];
+    const max = MAX_SCORE[key];
+    const percent = Math.round(score / max * 100);
+
+    const row = document.createElement('div');
+    row.className = 'bar-row';
+    row.innerHTML = `
+      <div class="bar-label">
+        <span>${type.name} (${key})</span>
+        <span class="score">${score} из ${max} · ${percent}%</span>
+      </div>
+      <div class="bar-track"><div class="bar-fill" style="background:${type.color}"></div></div>
+    `;
+    barsBox.appendChild(row);
+    requestAnimationFrame(() => {
+      row.querySelector('.bar-fill').style.width = percent + '%';
+    });
+  });
+
+  let noteHtml = '';
+  if (leaders.length > 1) {
+    noteHtml += `<p style="margin:0 0 10px;"><b>У вас смешанный тип.</b> Несколько направлений
+      набрали одинаковое количество баллов — вам подходят профессии сразу из нескольких сфер.</p>`;
+  }
+  if (record.topScore <= 5) {
+    noteHtml += `<p style="margin:0 0 10px;">Максимальный результат невысокий. Возможно, вам пока
+      трудно выбрать между разными видами деятельности — это нормально.</p>`;
+  }
+  noteHtml += `<p style="margin:0;">Результаты теста — это <b>ориентир, а не приговор</b>.
+    Окончательный выбор профессии стоит делать, учитывая также интересы, способности и рынок труда.</p>`;
+  noteBox.innerHTML = noteHtml;
+}
+
+function escapeHtml(str) {
+  return String(str).replace(/[&<>"']/g, s => ({
+    '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
+  }[s]));
+}
+
+document.getElementById('printBtn').addEventListener('click', () => window.print());
+
+document.getElementById('restartBtn').addEventListener('click', () => {
+  if (!confirm('Пройти тест заново? Все ответы будут сброшены.')) return;
+  startForm.reset();
+  testForm.reset();
+  questionsBox.querySelectorAll('.opt').forEach(o => o.classList.remove('selected'));
+  userData = { institution:'', course:'', fio:'', major:'' };
+  studentShort.textContent = '';
+  saveStatus.innerHTML = '';
+  updateProgress();
+  showScreen(screenForm);
+});
+
+buildQuestions();
+updateProgress();
+</script>
+</body>
+</html>
